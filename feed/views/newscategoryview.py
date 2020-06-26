@@ -11,8 +11,7 @@ from drf_yasg.utils import swagger_auto_schema
 from feed.models import News as News_model, Category
 from news import settings
 import os
-import NewsApiClient
-
+from newsapi import NewsApiClient
 
 class CategoryListView(ListAPIView):
     queryset = Category.objects.all()
