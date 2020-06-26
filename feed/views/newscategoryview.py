@@ -10,7 +10,8 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from feed.models import News as News_model, Category
 from news import settings
-from newsapi import NewsApiClient
+import os
+import NewsApiClient
 
 
 class CategoryListView(ListAPIView):
@@ -37,36 +38,29 @@ class NewsPostView(GenericAPIView):
     serializer_class=NewsSerializer
     def post(self, request, format=None):
         try:
-            if request.GET.get('category_id'):
-                category = Category.objects.get(id=request.GET.get('category_id'))
-            elif Category.objects.filter(name=request.GET.get('category_name')).exists():
-                category = Category.objects.get(name=request.GET.get('category_name'))
-            else:
-                return Response({'message':'invalid category name or category id'},
-                            status=status.HTTP_400_BAD_REQUEST,
-                            content_type="application/json")
-            try:
-                newsapi = NewsApiClient(api_key='dbf3bcde6dfe4aab97d76f2516119726')
-                top_headlines = newsapi.get_top_headlines(category='science')
-            except Exception as e:
-                return Response({'message':"here 45"+str(e)+str(category.name)+str(category)},
+            category = get_category_name(self, request)
+            if category:
+                newsapi = NewsApiClient(api_key=os.environ.get('IS_HEROKU', None))
+                top_headlines = newsapi.get_top_headlines(category=str(category.name))
+                if top_headlines['status'] == 'ok':
+                    for news_data in top_headlines['articles']:
+                        input_data = {db_keys[key]:news_data[key] for key in news_data.keys() if key in db_keys.keys()}
+                        input_data['category'] = category.id
+                        serializer = NewsPostSerializer(data=input_data)
+                        if serializer.is_valid():
+                            serializer.save()
+                        else:
+                            print(serializer.errors)
+                            continue
+                    return Response({'message':'News created'},
+                                    status=status.HTTP_201_CREATED,
+                                    content_type="application/json")
+                else:
+                    return Response(top_headlines,
                                 status=status.HTTP_400_BAD_REQUEST,
                                 content_type="application/json")
-            if top_headlines['status'] == 'ok':
-                for news_data in top_headlines['articles']:
-                    input_data = {db_keys[key]:news_data[key] for key in news_data.keys() if key in db_keys.keys()}
-                    input_data['category'] = category.id
-                    serializer = NewsPostSerializer(data=input_data)
-                    if serializer.is_valid():
-                        serializer.save()
-                    else:
-                        print(serializer.errors)
-                        continue
-                return Response({'message':'News created'},
-                                status=status.HTTP_201_CREATED,
-                                content_type="application/json")
             else:
-                return Response(top_headlines,
+                return Response({'message':'invalid category name or category id'},
                             status=status.HTTP_400_BAD_REQUEST,
                             content_type="application/json")
         except Exception as e:
