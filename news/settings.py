@@ -21,8 +21,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '(=r762cjut^c=qswh4022n##g@yinq0u(3l$10rcu+*^wj8u6h'
-newsapi = NewsApiClient(api_key='dbf3bcde6dfe4aab97d76f2516119726')
+SECRET_KEY = os.environ.get('SECRET_KEY', None)
+
+newsapi = NewsApiClient(api_key=os.environ.get('api_key', None))
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -114,7 +116,6 @@ else:
         'HOST': 'localhost',
         'PORT': '',
         'OPTIONS': {'charset': 'utf8mb4'},
-
         }
     }
 
