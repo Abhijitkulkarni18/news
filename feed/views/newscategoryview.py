@@ -40,9 +40,9 @@ class NewsPostView(GenericAPIView):
             category = get_category_name(self, request)
             if category:
                 try:
-                    top_headlines = settings.newsapi.get_top_headlines(category=category.name)
+                    top_headlines = settings.newsapi.get_top_headlines(category=str(category.name))
                 except Exception as e:
-                    return Response({'message':"here 45"+str(e)},
+                    return Response({'message':"here 45"+str(e)+str(category.name)},
                                     status=status.HTTP_400_BAD_REQUEST,
                                     content_type="application/json")
                 if top_headlines['status'] == 'ok':
