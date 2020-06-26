@@ -1,0 +1,27 @@
+[
+    {"model": "feed.category", "pk": "1",
+        "fields":{
+			"name": "general"
+        }
+    },
+    {"model": "feed.category", "pk": "2",
+        "fields":{
+			"name": "sports"
+        }
+    },
+    {"model": "feed.category", "pk": "3",
+        "fields":{
+			"name": "science"
+        }
+    },
+    {"model": "feed.category", "pk": "4",
+        "fields":{
+			"name": "business"
+        }
+    },
+    {"model": "feed.category", "pk": "5",
+        "fields":{
+			"name": "entertainment"
+        }
+    }
+]

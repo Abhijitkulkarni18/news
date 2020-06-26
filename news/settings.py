@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from newsapi import NewsApiClient
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,12 +22,30 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '(=r762cjut^c=qswh4022n##g@yinq0u(3l$10rcu+*^wj8u6h'
-
+newsapi = NewsApiClient(api_key='dbf3bcde6dfe4aab97d76f2516119726')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
 
+
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+)
+
+SWAGGER_SETTINGS = {            
+              'JSON_EDITOR': True,       
+        }
 
 # Application definition
 
@@ -37,6 +56,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
+    'feed',
 ]
 
 MIDDLEWARE = [
@@ -73,12 +94,29 @@ WSGI_APPLICATION = 'news.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
+IS_HEROKU = os.environ.get('IS_HEROKU', None)
+
+if IS_HEROKU:
+    
+    import django_heroku
+    django_heroku.settings(locals())
+
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
+else:
+    DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'news',
+        'USER': 'abhijit',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+        'OPTIONS': {'charset': 'utf8mb4'},
+
+        }
     }
-}
 
 
 # Password validation
