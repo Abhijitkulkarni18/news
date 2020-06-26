@@ -39,7 +39,7 @@ class NewsPostView(GenericAPIView):
         try:
             category = get_category_name(self, request)
             if category:
-                newsapi = NewsApiClient(api_key=os.environ.get('IS_HEROKU', None))
+                newsapi = NewsApiClient(api_key=os.environ.get('NEWS_API_KEY', None))
                 top_headlines = newsapi.get_top_headlines(category=str(category.name))
                 if top_headlines['status'] == 'ok':
                     for news_data in top_headlines['articles']:
