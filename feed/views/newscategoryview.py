@@ -39,7 +39,12 @@ class NewsPostView(GenericAPIView):
         try:
             category = get_category_name(self, request)
             if category:
-                top_headlines = settings.newsapi.get_top_headlines(category=category.name)
+                try:
+                    top_headlines = settings.newsapi.get_top_headlines(category=category.name)
+                except Exception as e:
+                    return Response({'message':"here 45"+str(e)},
+                                    status=status.HTTP_400_BAD_REQUEST,
+                                    content_type="application/json")
                 if top_headlines['status'] == 'ok':
                     for news_data in top_headlines['articles']:
                         input_data = {db_keys[key]:news_data[key] for key in news_data.keys() if key in db_keys.keys()}
