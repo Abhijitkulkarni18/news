@@ -8,13 +8,13 @@ from rest_framework.generics import GenericAPIView, ListAPIView
 from django.db import IntegrityError
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from feed.models import News as News_model, Category
+from feed.models import News as News_model, Category as Category_model
 from news import settings
 
 
 
 class CategoryListView(ListAPIView):
-    queryset = Category.objects.all()
+    queryset = Category_model.objects.all()
     serializer_class=CategorySerializer
 
 
@@ -22,12 +22,12 @@ class CategoryListView(ListAPIView):
 db_keys = {"author":"author","description":"description","title":"title",
             "urlToImage":"url_image","publishedAt":"published_at"}
 
-def get_category_name(self, request):
+def get_category_name(self, request, Category_model):
     try:
         if request.GET.get('category_id'):
-            return Category.objects.get(id=request.GET.get('category_id'))
-        elif Category.objects.filter(name=request.GET.get('category_name')).exists():
-            return Category.objects.get(name=request.GET.get('category_name'))
+            return Category_model.objects.get(id=request.GET.get('category_id'))
+        elif Category_model.objects.filter(name=request.GET.get('category_name')).exists():
+            return Category_model.objects.get(name=request.GET.get('category_name'))
         else:
             return None
     except Exception as e:
@@ -37,7 +37,7 @@ class NewsPostView(GenericAPIView):
     serializer_class=NewsSerializer
     def post(self, request, format=None):
         try:
-            category = get_category_name(self, request)
+            category = get_category_name(self, request, Category_model)
             if category:
                 try:
                     top_headlines = settings.newsapi.get_top_headlines(category=str(category.name))
