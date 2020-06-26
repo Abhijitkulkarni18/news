@@ -10,7 +10,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from feed.models import News as News_model, Category
 from news import settings
-
+from newsapi import NewsApiClient
 
 
 class CategoryListView(ListAPIView):
@@ -46,7 +46,8 @@ class NewsPostView(GenericAPIView):
                             status=status.HTTP_400_BAD_REQUEST,
                             content_type="application/json")
             try:
-                top_headlines = settings.newsapi.get_top_headlines(category='science')
+                newsapi = NewsApiClient(api_key='dbf3bcde6dfe4aab97d76f2516119726')
+                top_headlines = newsapi.get_top_headlines(category='science')
             except Exception as e:
                 return Response({'message':"here 45"+str(e)+str(category.name)+str(category)},
                                 status=status.HTTP_400_BAD_REQUEST,
